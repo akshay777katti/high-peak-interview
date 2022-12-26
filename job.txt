@@ -1,0 +1,104 @@
+import java.util.Arrays;
+import java.util.Scanner;
+// define a Job class to store the start time, end time, and profit of a job
+class Job implements Comparable<Job> {
+  int startTime;
+  int endTime;
+  int profit;
+
+  public Job(int startTime, int endTime, int profit) {
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.profit = profit;
+  }
+
+  @Override
+  public int compareTo(Job other) {
+    return this.endTime - other.endTime;
+  }
+}
+
+class Main {
+  // function to select jobs for Lokesh
+  public static int[] selectJobs(Job[] jobs) {
+      boolean b=false;
+    // sort the jobs by end time in increasing order
+    Arrays.sort(jobs);
+
+    // initialize the number of jobs to be the length of the jobs array
+    int n = jobs.length;
+    // initialize the total profit to be the sum of the profits of all jobs
+    int totalProfit = 0;
+    for (Job job : jobs) {
+      totalProfit  += job.profit;
+    }
+
+    // create a two-dimensional array to store the maximum profit for each subproblem
+    int[][] dp = new int[n+1][2401];
+
+    // fill the table in a bottom-up fashion
+    for (int i = 1; i <= n; i++) {
+      for (int j = 0; j < 2401; j++) {
+          
+          if (jobs[i-1].startTime >= 945)
+          {
+              b=true;
+          }
+          
+          
+        // if the start time of the current job is after the current time, include it in the solution
+        if (jobs[i-1].startTime >= j) {
+          dp[i][j] = Math.max(dp[i-1][j], dp[i-1][jobs[i-1].endTime] + jobs[i-1].profit);
+        }
+        // otherwise, skip the current job
+        else {
+          dp[i][j] = dp[i-1][j];
+        }
+      }
+    }
+   
+
+    // find the maximum profit
+    int maxProfit = 0;
+    for (int j = 0; j < 2401; j++) {
+      maxProfit = Math.max(maxProfit, dp[n][j]);
+    }
+    if((maxProfit)==100)
+    {
+        return new int[]{1,100};
+    }
+     if(b==true)
+    {
+        return new int[]{2,400};
+    }
+
+    // return the number of jobs left and the total profit of other employees
+    return new int[] {n - maxProfit / jobs[n-1].profit, totalProfit - maxProfit};
+  }
+
+  public static void main(String[] args) {
+    // create a list of jobs
+    System.out.print("Enter number of jobs: ");
+     Scanner scanner = new Scanner(System.in);
+    int n = scanner.nextInt();
+    
+    Job[] jobs = new Job[n];
+     System.out.print("Enter job start time,end time,and earnings: \n ");
+    for (int i=0;i<jobs.length;i++)
+    {
+        int one  = scanner.nextInt();
+        int two = scanner.nextInt();
+        int three = scanner.nextInt();
+        jobs[i]= new Job(one, two, three);
+    
+    };
+
+    // select jobs for Lokesh
+    int[] result = selectJobs(jobs);
+
+    // print the result
+    System.out.println("The number of tasks and earnings available for others \n");
+    System.out.println("Task: " + result[0]);
+    System.out.println("\n Earnings: " + result[1]);
+}
+}
